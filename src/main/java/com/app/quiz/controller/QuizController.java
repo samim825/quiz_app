@@ -1,5 +1,7 @@
 package com.app.quiz.controller;
 
+import com.app.quiz.dto.QuestionDto;
+import com.app.quiz.dto.ResponseDto;
 import com.app.quiz.entity.Quiz;
 import com.app.quiz.service.QuizService;
 import lombok.RequiredArgsConstructor;
@@ -34,5 +36,20 @@ public class QuizController {
     public ResponseEntity<Quiz> getQuizById(@PathVariable Long id) {
         Optional<Quiz> quiz = quizService.getQuizById(id);
         return quiz.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NO_CONTENT));
+    }
+
+    @GetMapping("/all-question/quiz-id/{id}")
+    public ResponseEntity<List<QuestionDto>> getAllQuestionByQuiz(@PathVariable Long id) {
+        List<QuestionDto>  questionDtos = quizService.getAllQuestionsByQuiz(id);
+        if(questionDtos.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(questionDtos, HttpStatus.OK);
+    }
+
+    @PostMapping("/submit-quiz/{id}")
+    public ResponseEntity<Integer> submitQuiz(@PathVariable Long id,  @RequestBody List<ResponseDto> responseDtos) {
+        Integer result = quizService.calculateResult(id, responseDtos);
+        return new ResponseEntity<>(result, HttpStatus.OK);
     }
 }
